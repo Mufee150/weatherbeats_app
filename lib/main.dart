@@ -97,7 +97,7 @@ class _WeatherBeatsHomePageState extends State<WeatherBeatsHomePage>
           _weatherCondition = data['weather']['condition'];
           _city = data['weather']['city'];
           _weatherText =
-              "Hey, it's ${_weatherCondition.toLowerCase()} today in $_city!";
+              "Hey, it's a ${_getWeatherAdjective(_weatherCondition)} day in $_city!";
           _playlistUrl = data['music']['playlistUrl'];
           _suggestedGenre = data['music']['suggestedGenre'];
         });
@@ -137,6 +137,31 @@ class _WeatherBeatsHomePageState extends State<WeatherBeatsHomePage>
     }
 
     return await Geolocator.getCurrentPosition();
+  }
+
+  String _getWeatherAdjective(String condition) {
+    switch (condition) {
+      case 'Clear':
+        return 'clear';
+      case 'Clouds':
+        return 'cloudy';
+      case 'Rain':
+        return 'rainy';
+      case 'Drizzle':
+        return 'drizzly';
+      case 'Thunderstorm':
+        return 'stormy';
+      case 'Snow':
+        return 'snowy';
+      case 'Mist':
+      case 'Smoke':
+      case 'Haze':
+      case 'Dust':
+      case 'Fog':
+        return 'hazy';
+      default:
+        return condition.toLowerCase();
+    }
   }
 
   @override
@@ -216,15 +241,12 @@ class _WeatherBeatsHomePageState extends State<WeatherBeatsHomePage>
   }
 
   Widget _buildSuccessContent(BuildContext context) {
-    final weatherIcon = _getWeatherIcon(_weatherCondition);
-    final moods = ['Happy', 'Calm', 'Energetic', 'Cozy'];
-
     return Column(
       children: [
-        Icon(weatherIcon, size: 80, color: kTextColor),
+        _buildWeatherIcon(),
         const SizedBox(height: 20),
         Text(
-          "Hey, it's ${_weatherCondition.toLowerCase()} today in $_city!",
+          _weatherText,
           style: Theme.of(context)
               .textTheme
               .headlineSmall
@@ -245,7 +267,15 @@ class _WeatherBeatsHomePageState extends State<WeatherBeatsHomePage>
               _fetchWeatherData();
             }
           },
-          items: moods.map<DropdownMenuItem<String>>((String value) {
+          items: [
+            'Happy',
+            'Calm',
+            'Energetic',
+            'Cozy',
+            'Sad',
+            'Anxious',
+            'Tired'
+          ].map<DropdownMenuItem<String>>((String value) {
             return DropdownMenuItem<String>(
               value: value,
               child: Text(value),
@@ -267,6 +297,11 @@ class _WeatherBeatsHomePageState extends State<WeatherBeatsHomePage>
         ),
       ],
     );
+  }
+
+  Widget _buildWeatherIcon() {
+    final weatherIcon = _getWeatherIcon(_weatherCondition);
+    return Icon(weatherIcon, size: 80, color: kTextColor);
   }
 
   Widget _buildErrorState() {
